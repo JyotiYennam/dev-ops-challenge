@@ -2,9 +2,9 @@ default: &default
   adapter: postgresql
   encoding: unicode
   pool: 5
-  host: YOUR_DATABASE_HOST
-  username: admin
-  password: admin
+  host: mejuri-db.c36vme4j5fab.us-east-1.rds.amazonaws.com
+  username: mejuriuser
+  password: test12345
 
 development:
   <<: *default
