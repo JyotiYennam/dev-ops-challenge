@@ -256,6 +256,7 @@ resource "aws_ecs_task_definition" "ecs" {
   memory                   = 512
   container_definitions    = local.container_definitions
   execution_role_arn       = aws_iam_role.ecs_task_execution_role.arn
+  task_role_arn		   = aws_iam_role.ecs_task_execution_role.arn
 
 }
 resource "aws_ecs_service" "ecs" {
@@ -326,7 +327,8 @@ resource "aws_iam_role_policy" "ecs_secretsmanager_policy" {
           "secretsmanager:GetResourcePolicy",
           "secretsmanager:GetSecretValue",
           "secretsmanager:DescribeSecret",
-          "secretsmanager:ListSecretVersionIds"
+          "secretsmanager:ListSecretVersionIds",
+	  "ecs:ListTasks"
       ]
       Effect   = "Allow"
       Resource = local.secret_arns
