@@ -1,4 +1,4 @@
-#****** S3 bucket to store terraform state files ******
+#******************************* S3 bucket to store terraform state files **********************************
 terraform {
   backend "s3" {
     bucket         = "terrafrom-state.app.devopschallenge"
@@ -11,7 +11,7 @@ provider "aws" {
    region = "us-east-1"
  }
 
-#DB credentials stored in AWS Secrets Manager
+#****************************** DB credentials stored in AWS Secrets Manager ********************************
 data "aws_secretsmanager_secret" "db-credentials" {
   name = "mejuri.db.credentials"
 }
@@ -19,38 +19,38 @@ data "aws_secretsmanager_secret_version" "db-credentials" {
   secret_id = data.aws_secretsmanager_secret.db-credentials.id
 }
 
-#Setting db credentials as environment variables and environment secrets
+#**************** Locals - Setting db credentials as environment variables and environment secrets ***********
 locals {
   db-credentials = jsondecode(data.aws_secretsmanager_secret_version.db-credentials.secret_string)
   environment_variables = {
-    host= "mejuri-db.c36vme4j5fab.us-east-1.rds.amazonaws.com"
+    host= "mejuri-db.c36vme4j5fab.us-east-1.rds.amazonaws.com" #rds endpoint
   }
   environment_secrets = {
     username = "${data.aws_secretsmanager_secret_version.db-credentials.arn}:username::"
     password = "${data.aws_secretsmanager_secret_version.db-credentials.arn}:password::"
-    host = "${data.aws_secretsmanager_secret_version.db-credentials.arn}:host::"
   }
   secret_arns = [data.aws_secretsmanager_secret_version.db-credentials.arn]
   
-  #Setting env vars and secrets into container definition
-  secrets_keys = keys(var.container_secrets)
+#****Setting env vars and secrets into container definition*****
+  secrets_keys = keys(local.environment_secrets)
   secrets_map = [
   for key in local.secrets_keys :  {
     name : key,
-    valueFrom : var.container_secrets[key]
+    valueFrom : local.environment_secrets[key]
   }
   ]
   secret_env_str = jsonencode(local.secrets_map)
-  env_keys = keys(var.container_environment)
+	  
+  env_keys = keys(local.environment_variables)
   env_map = [
   for key in local.env_keys :  {
     name : key,
-    value : var.container_environment[key]
+    value : local.environment_variables[key]
   }
   ]
   env_str = jsonencode(local.env_map)
     
-  #Defining container definition
+  #*****Defining container definition******
   container_definitions = <<EOF
   [{
       "name": "mejuri-rails-container",
@@ -72,6 +72,8 @@ locals {
   EOF
 }
 
+
+#************************************************ NETWORK COMPONENTS *******************************************************
 #********** VPC ***********
 resource "aws_vpc" "main" {
   cidr_block           = "10.1.0.0/16"
@@ -127,6 +129,7 @@ resource "aws_route" "public" {
 
 
 
+#******************************************************** RDS - DATABASE ******************************************************
 #*********** RDS (Database - postgresql 11.6)****************
 resource "aws_security_group" "rdssc" {
   name   = "rds-securitygroup"
@@ -197,8 +200,8 @@ resource "aws_db_instance" "default" {
 }
 
 
-
-#************ ECR (Elastic Container Registry)****************
+#**************************************************** ELASTIC CONTAINER REGISTRY ******************************************
+#************ ECR ****************
 resource "aws_ecr_repository" "main" {
   name = "mejuri-ecr"
 }
@@ -238,8 +241,8 @@ EOF
 
 
 
-#*************** ECS (Elastic Container Service)****************
-##  elastic container service
+#************************************************ ECS (Elastic Container Service)*******************************************
+#****** Elastic Container Service ********
 resource "aws_cloudwatch_log_group" "ecs" {
   name              =  "mejuri-rails-api-ecs-service"
   retention_in_days = 7
@@ -289,7 +292,7 @@ resource "aws_ecs_cluster" "ecs" {
 ### Security Group
 resource "aws_security_group" "ecs-sg" {
   name   = "mejuri-rails-api-sg"
-  vpc_id = var.vpc_id
+  vpc_id = aws_vpc.main.id
   tags = merge(
    {
      "Name" = "ECS Security Group"
@@ -306,7 +309,7 @@ data "aws_iam_policy_document" "task-assume-role" {
   }
 }
 resource "aws_iam_role" "ecs_task_execution_role" {
-  name = "${var.name_prefix}-dbmig-ecs_task_execution_role"
+  name = "mejuri-ecs_task_execution_role"
   assume_role_policy = data.aws_iam_policy_document.task-assume-role.json
 }
 resource "aws_iam_role_policy_attachment" "ecs_task_execution_role" {
