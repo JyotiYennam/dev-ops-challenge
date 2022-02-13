@@ -3,8 +3,6 @@ terraform {
     bucket         = "terrafrom-state.app.devopschallenge"
     key            = "infra-github/terraform.tfstate"
     region         = "us-east-1"
-    accesskey      = $AWS_ACCESS_KEY_ID
-    secretkey      = $AWS_SECRET_ACCESS_KEY
   }
 }
 
