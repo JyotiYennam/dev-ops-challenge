@@ -1,3 +1,13 @@
+terraform {
+  backend "s3" {
+    bucket         = "terrafrom-state.app.devopschallenge"
+    key            = "infra-github/terraform.tfstate"
+    region         = "us-east-1"
+    accesskey      = ${{ secrets.AWS_ACCESS_KEY_ID }}
+    secretkey      = ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+  }
+}
+
 provider "aws" {
    region = "us-east-1"
  }
