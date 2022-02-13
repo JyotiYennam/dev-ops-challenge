@@ -142,7 +142,7 @@ resource "aws_security_group" "rdssc" {
     }
   )
 }
-# Open ingress traffic SSH port
+# Open ingress traffic
 resource "aws_security_group_rule" "open_ingress" {
   depends_on        = [aws_security_group.rdssc]
   type              = "ingress"
