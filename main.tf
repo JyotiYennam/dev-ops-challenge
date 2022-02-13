@@ -111,8 +111,8 @@ resource "aws_db_instance" "default" {
   identifier = "mejuri-db"
   instance_class = "db.t2.micro"
   allocated_storage = 5
-  username = "admin"
-  password = "admin"
+  username = "mejuriuser"
+  password = "test12345"
   port = 5432
   engine    = "postgres"
   engine_version = "11.6"
