@@ -16,18 +16,17 @@ resource "aws_vpc" "main" {
 resource "aws_subnet" "main" {
   vpc_id            = aws_vpc.main.id
   cidr_block        = "10.1.32.0/20"
-  availability_zone = ["us-east-1a", "us-east-1b"]
+  availability_zone = "us-east-1a"
   map_public_ip_on_launch = true
 }
 
 #Route tables and associations
 resource "aws_internet_gateway" "public" {
-  vpc_id = aws_vpc.main.vpc_id
+  vpc_id = aws_vpc.main.id
   tags = merge(
     {
       "Name" = "igw"
-    },
-    var.extra_tags,
+    }
   )
 }
 
@@ -36,8 +35,7 @@ resource "aws_route_table" "public" {
   tags = merge(
     {
       "Name" = "routetbl-public"
-    },
-    var.extra_tags,
+    }
   )
 }
 
