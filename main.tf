@@ -133,5 +133,5 @@ resource "aws_db_instance" "default" {
   copy_tags_to_snapshot       = true
   backup_retention_period = 30
   backup_window           = "03:00-06:00"
-  enabled_cloudwatch_logs_exports = ["error", "general", "slowquery"]
+  enabled_cloudwatch_logs_exports = ["postgresql", "upgrade"]
 }
