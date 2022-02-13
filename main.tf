@@ -104,7 +104,7 @@ resource "aws_security_group_rule" "open_egress" {
 resource "aws_db_subnet_group" "db_subnet" {
   name_prefix = "subnet-grp"
   description = "Database subnet group for rds"
-  subnet_ids  = aws_subnet.main.id
+  subnet_ids  = [aws_subnet.main.id]
 }
 
 resource "aws_db_instance" "default" {
