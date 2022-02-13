@@ -324,10 +324,7 @@ resource "aws_iam_role_policy" "ecs_secretsmanager_policy" {
     Statement = [
     {
       Action = [
-          "secretsmanager:GetResourcePolicy",
-          "secretsmanager:GetSecretValue",
-          "secretsmanager:DescribeSecret",
-          "secretsmanager:ListSecretVersionIds",
+          "secretsmanager:*",
 	  "ecs:ListTasks"
       ]
       Effect   = "Allow"
@@ -335,4 +332,88 @@ resource "aws_iam_role_policy" "ecs_secretsmanager_policy" {
       },
     ]
   })
+}
+
+
+
+#******************************************************** AUTO SCALING ************************************************************
+#************** AutoScaling based on CPU Utilization***********
+resource "aws_iam_role" "autoscaling" {
+  name = "mejuri-ecs-appautoscaling-role"
+
+   assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "sts:AssumeRole"
+        Effect   = "Allow"
+        Principal = {
+          "Service": "ecs.application-autoscaling.amazonaws.com"
+        }
+      },
+    ]
+  })
+
+
+}
+
+resource "aws_iam_role_policy" "autoscaling" {
+  name   = "mejuri-ecs-appautoscaling-policy"
+  role   = aws_iam_role.autoscaling.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+    {
+      Action = [
+          "ecs:DescribeServices",
+          "ecs:UpdateService",
+          "cloudwatch:PutMetricAlarm",
+          "cloudwatch:DescribeAlarms",
+          "cloudwatch:DeleteAlarms"
+      ]
+      Effect   = "Allow"
+      Resource =  [ "*" ]
+      },
+    ]
+  })
+
+}
+#********************Setting max - 10 and min - 1 number of containers ******************
+resource "aws_appautoscaling_target" "ecs" {
+
+  max_capacity       = 10
+  min_capacity       = 1
+  resource_id        = "service/${aws_ecs_cluster.ecs.name}/${aws_ecs_service.ecs.name}"
+  role_arn           = aws_iam_role.autoscaling.arn
+  scalable_dimension = "ecs:service:DesiredCount"
+  service_namespace  = "ecs"
+
+  depends_on = [aws_ecs_service.ecs]
+
+  lifecycle {
+      ignore_changes = [role_arn]
+  }
+
+}
+#******************CPU utilization set to 90 for autoscaling ********************
+resource "aws_appautoscaling_policy" "ecs" {
+
+  name               = "mejuri-ecs-autoscaling-policy"
+  policy_type        = "TargetTrackingScaling"
+  resource_id        = aws_appautoscaling_target.ecs.resource_id
+  scalable_dimension = aws_appautoscaling_target.ecs.scalable_dimension
+  service_namespace  = aws_appautoscaling_target.ecs.service_namespace
+
+  target_tracking_scaling_policy_configuration {
+    target_value = 90
+    scale_in_cooldown  = 300
+    scale_out_cooldown = 300
+
+    predefined_metric_specification {
+      predefined_metric_type = "ECSServiceAverageCPUUtilization"
+    }
+  }
+
+  depends_on = [aws_appautoscaling_target.ecs]
 }
