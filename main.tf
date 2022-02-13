@@ -121,7 +121,7 @@ resource "aws_db_instance" "default" {
   storage_encrypted = false
   vpc_security_group_ids = [aws_security_group.rdssc.id]
   db_subnet_group_name = aws_db_subnet_group.db_subnet.id
-  availability_zone   = "us-east-1"
+  availability_zone   = "us-east-1a"
   multi_az            = false
   iops                = 0
   publicly_accessible = true
