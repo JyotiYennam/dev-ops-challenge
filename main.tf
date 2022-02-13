@@ -85,7 +85,7 @@ resource "aws_security_group_rule" "open_ingress" {
   from_port         = 5432
   to_port           = 5432
   protocol          = "tcp"
-  cidr_blocks       = "10.1.0.0/16"
+  cidr_blocks       = ["10.1.0.0/16"]
   security_group_id = aws_security_group.rdssc.id
 }
    
@@ -108,7 +108,7 @@ resource "aws_db_subnet_group" "db_subnet" {
 }
 
 resource "aws_db_instance" "default" {
-  identifier = "hello_world"
+  identifier = "mejuri-db"
   instance_class = "db.t2.micro"
   allocated_storage = 5
   username = "admin"
