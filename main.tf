@@ -14,7 +14,7 @@ resource "aws_vpc" "main" {
 
 #Subnets
 resource "aws_subnet" "main" {
-  vpc_id            = aws_vpc.main.vpc_id
+  vpc_id            = aws_vpc.main.id
   cidr_block        = "10.1.32.0/20"
   availability_zone = ["us-east-1a", "us-east-1b"]
   map_public_ip_on_launch = true
@@ -32,7 +32,7 @@ resource "aws_internet_gateway" "public" {
 }
 
 resource "aws_route_table" "public" {
-  vpc_id = aws_vpc.main.vpc_id
+  vpc_id = aws_vpc.main.id
   tags = merge(
     {
       "Name" = "routetbl-public"
