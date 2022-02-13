@@ -1,26 +1,3 @@
-terraform {
-  backend "s3" {
-    bucket         = "terrafrom-state.app.canadaveinclinics.ca"
-    key            = "infra-github/terraform.tfstate"
-    region         = "us-east-1"
-    access_key     = ${{ secrets.AWS_ACCESS_KEY_ID }}
-    secret_key     = ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-  }
-}
-
-
-
-locals {
-  base_name = "devops-challenge"
-  region = "us-east-1"
-  base_description = "devops-challenge-rubyrails"
-}
-
-provider "aws" {
-   region         = "us-east-1"
-   access_key     = ${{ secrets.AWS_ACCESS_KEY_ID }}
-   secret_key     = ${{ secrets.AWS_SECRET_ACCESS_KEY }}
- }
 
 #VPC
 resource "aws_vpc" "main" {
