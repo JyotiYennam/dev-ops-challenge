@@ -109,10 +109,10 @@ resource "aws_db_subnet_group" "db_subnet" {
 
 resource "aws_db_instance" "default" {
   identifier = "hello_world"
-  instance_class = ""db.t2.micro"
+  instance_class = "db.t2.micro"
   allocated_storage = 5
-  username = admin
-  password = admin
+  username = "admin"
+  password = "admin"
   port = 5432
   engine    = "postgres"
   engine_version = "11.6"
