@@ -11,7 +11,7 @@ env:
   ECR_REPOSITORY: mejuri-ecr 
   ECS_SERVICE: mejuri-rails-api-ecs-service 
   ECS_CLUSTER: mejuri-ecs-cluster          
-  ECS_TASK_DEFINITION: mejuri-api.json
+  ECS_TASK_DEFINITION: ./mejuri-api.json
   CONTAINER_NAME: mejuri-rails-container
   
 defaults:
