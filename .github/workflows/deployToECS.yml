@@ -1,6 +1,7 @@
+
 name: Deploy to Amazon ECS
 
-#workflow trigger on every push to master branch
+#************* Workflow triggers on every push to master branch *****************
 on:
   push:
    branches:
@@ -17,7 +18,7 @@ defaults:
   run:
     shell: bash
     
-#docker build, push to ecr, deploy to ecs
+#*************** Docker build -> Push to ECR -> Deploy to ECS ********************
 jobs:
   deploy:
     name: Deploy
@@ -31,9 +32,13 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v2
       
+      
+      
     - name: Set Tag Number
       id: tag-number
       run: echo ::set-output name=tag::${GITHUB_REF#refs/*/}
+      
+      
       
       
     - name: Check Tag Release
@@ -44,6 +49,8 @@ jobs:
           echo ${{ steps.vars.outputs.tag }}
        
        
+       
+       
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v1
       with:
@@ -52,9 +59,13 @@ jobs:
           aws-region: ${{ secrets.AWS_REGION }}
        
        
+       
+       
     - name: Login to Amazon ECR
       id: login-ecr
       uses: aws-actions/amazon-ecr-login@v1
+      
+      
       
       
     - name: Build, tag, and push image to Amazon ECR
@@ -68,11 +79,15 @@ jobs:
           echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
          
          
+         
+ #******* The task definition is defined and created as part of infrastructure workflow - terraform.yml *********      
     - name: Download task definition
       run: |
         aws ecs describe-task-definition --task-definition mejuri-api --query taskDefinition > task-definition.json
         
-        
+     
+     
+     
     - name: Fill in the new image ID in the Amazon ECS task definition
       id: task-def
       uses: aws-actions/amazon-ecs-render-task-definition@v1
@@ -80,7 +95,9 @@ jobs:
           task-definition: task-definition.json
           container-name: mejuri-rails-container
           image: ${{ steps.build-image.outputs.image }}
-          
+       
+       
+       
           
     - name: Deploy Amazon ECS task definition
       uses: aws-actions/amazon-ecs-deploy-task-definition@v1
