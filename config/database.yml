@@ -3,8 +3,8 @@ default: &default
   encoding: unicode
   pool: 5
   host: mejuri-db.c36vme4j5fab.us-east-1.rds.amazonaws.com
-  username: mejuriuser
-  password: test12345
+  username: admin
+  password: admin
 
 development:
   <<: *default
